@@ -1,0 +1,65 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Index</title>
+</head>
+<body>
+
+    <button id="btnStart">Start Background Task </button>
+    <div id="results"></div>
+    <script>
+        var currentGuid = "";
+
+        let button = document.getElementById("btnStart");
+        button.addEventListener('click', function (event) {
+            submitJob();
+        });
+
+        function submitJob() {
+            const statusUrl = "/api/Job"
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", statusUrl, true);
+            xhr.onload = function () {
+                if (xhr.status === 200) {
+                    document.getElementById("results").innerHTML = xhr.status + " " + xhr.responseText;
+                    currentGuid = xhr.responseText.replace(/\"/g, '');
+                    pollApi(currentGuid);
+                }
+                else {
+                    document.getElementById("results").innerHTML = xhr.status + " " + xhr.responseText;
+                }
+            }
+            xhr.send();
+        }
+
+        function pollApi(guid) {
+            const statusUrl = "/api/Job/"
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", statusUrl + guid, true);
+            xhr.onload = function () {
+                if (xhr.status === 200) {
+                    document.getElementById("results").innerHTML += "<BR> " + xhr.status + " " + xhr.responseText;
+                    if (status === "pending") {
+                        // The request is still pending.
+                    } else if (status === "complete") {
+                        // The request is complete.
+                    }
+                } else {
+                    // There was an error.
+                }
+            };
+            setTimeout(function () {
+                pollApi(guid);
+            }, 5000);
+            xhr.send();
+        }
+    </script>
+</body>
+</html>
